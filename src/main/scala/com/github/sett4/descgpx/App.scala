@@ -17,11 +17,24 @@ import scala.xml.pull._
 object App {
   def main(args: Array[String]): Unit = {
     println("hogehoge")
-//    val url = this.getClass.getResourceAsStream("commuting.gpx")
     val url = getClass.getResourceAsStream("/commuting.gpx")
     val source = Source.fromInputStream(url)
-    val reader = new XMLEventReader(source)
+    val reader = new GpxReader(new XMLEventReader(source))
+    reader.read()
+  }
+}
 
-    reader.foreach{ println (_) }
+class GpxReader(val reader: XMLEventReader) extends HalfEventParser(reader) {
+  def acceptPf = {
+    case e @ EvElemStart(_, "metadata", _, _) => onMetadata
+    case e @ EvElemStart(_, "trkpt", _, _) => onTrkpt
+  }
+
+  def onMetadata(elem: Elem) = {
+    println(elem.toString())
+  }
+
+  def onTrkpt(elem: Elem) = {
+    println(elem.toString())
   }
 }
