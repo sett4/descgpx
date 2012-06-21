@@ -1,4 +1,4 @@
-import com.github.sett4.descgpx.{GpxReader, HalfEventParser}
+import com.github.sett4.descgpx.HalfEventParser
 import io.Source
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
@@ -18,7 +18,7 @@ class HalfEventParserSpec extends FunSpec with ShouldMatchers {
   describe("parse xml") {
     val source = Source.fromString("<a></a>")
     val reader = new XMLEventReader(source)
-    val parser = new GpxReader(reader)
+    val parser = new HalfEventParser(reader)
 
     val event = reader.next()
     val element = parser.toElem(event.asInstanceOf[EvElemStart])
@@ -28,10 +28,10 @@ class HalfEventParserSpec extends FunSpec with ShouldMatchers {
     }
   }
 
-  describe("深さ2のXMLをパース") {
+  describe("parse xml depth 2") {
     val source = Source.fromString("""<a k="1"><b xmlns:book="http://example.com/ns/book/">aa<!-- comment --><h:title/></b><c/></a>""")
     val reader = new XMLEventReader(source)
-    val parser = new GpxReader(reader)
+    val parser = new HalfEventParser(reader)
 
     val event = reader.next()
     val element = parser.toElem(event.asInstanceOf[EvElemStart])

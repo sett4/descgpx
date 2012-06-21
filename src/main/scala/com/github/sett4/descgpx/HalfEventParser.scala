@@ -11,10 +11,8 @@ import pull.EvText
 import pull.XMLEvent
 import pull.XMLEventReader
 import xml.Text
-import xml.Text
 import xml.EntityRef
 import xml.Comment
-import scala.Some
 import xml.ProcInstr
 
 /**
@@ -22,19 +20,17 @@ import xml.ProcInstr
  * User: sett4
  * Date: 12/06/20
  * Time: 0:13
- * To change this template use File | Settings | File Templates.
  */
 
-abstract class HalfEventParser(reader: XMLEventReader) {
+class HalfEventParser(reader: XMLEventReader) {
   def this(source: Source) = {
     this(new XMLEventReader(source))
   }
 
   /**
    *
-   * @param current
-   * @param reader
-   * @return
+   * @param orig 起点となる開始タグ
+   * @return origを起点としたElemを返す
    */
   def toElem(orig: EvElemStart) : Elem = {
     var children = Seq[Node]()
@@ -59,26 +55,20 @@ abstract class HalfEventParser(reader: XMLEventReader) {
       }
     }
 
-    throw new IllegalStateException(orig.label+"の閉じタグが見つかりませんでした")
+    throw new IllegalStateException(orig.label+" close tag not found.")
   }
 
-  def read(): Unit = {
+  def read(accept: PartialFunction[XMLEvent, (Elem => Unit)]): Unit = {
     while (reader.hasNext) {
-      val event = reader.next()
-
-      if (acceptPf.isDefinedAt(event) == true) {
-        val handler = acceptPf(event)
-        if (event.isInstanceOf[EvElemStart] == false) {
-          throw new IllegalStateException("event is not instance of EvElemStart")
+      reader.next() match {
+        case start: EvElemStart => {
+          if (accept.isDefinedAt(start) == true) {
+            val handler = accept(start)
+            handler(toElem(start))
+          }
         }
-        handler(toElem(event.asInstanceOf[EvElemStart]))
+        case _ =>
       }
     }
   }
-
-  def skipPf: PartialFunction[XMLEvent, (Elem => Unit)] = {
-    case _ => { (x) => }
-  }
-
-  def acceptPf: PartialFunction[XMLEvent, (Elem => Unit)]
 }
