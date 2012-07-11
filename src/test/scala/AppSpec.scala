@@ -1,5 +1,6 @@
 import com.github.sett4.descgpx.{GpxReader, App}
 import io.Source
+import org.geotools.referencing.{CRS, GeodeticCalculator}
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.{FunSpec}
 import xml.pull.XMLEventReader
